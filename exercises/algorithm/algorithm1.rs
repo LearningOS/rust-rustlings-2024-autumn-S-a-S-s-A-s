@@ -69,15 +69,43 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+	pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self {
+        let mut merged_list = LinkedList::new();
+
+        let mut a_node = list_a.start;
+        let mut b_node = list_b.start;
+
+        unsafe {
+            while let (Some(mut a_ptr), Some(mut b_ptr)) = (a_node, b_node) {
+                let a_val = &(*a_ptr.as_ptr()).val;
+                let b_val = &(*b_ptr.as_ptr()).val;
+
+                if a_val <= b_val {
+                    merged_list.add(std::ptr::read(a_val));
+                    a_node = (*a_ptr.as_ptr()).next;
+                } else {
+                    merged_list.add(std::ptr::read(b_val));
+                    b_node = (*b_ptr.as_ptr()).next;
+                }
+            }
+
+            // Add the remaining elements from list_a
+            while let Some(mut a_ptr) = a_node {
+                let a_val = &(*a_ptr.as_ptr()).val;
+                merged_list.add(std::ptr::read(a_val));
+                a_node = (*a_ptr.as_ptr()).next;
+            }
+
+            // Add the remaining elements from list_b
+            while let Some(mut b_ptr) = b_node {
+                let b_val = &(*b_ptr.as_ptr()).val;
+                merged_list.add(std::ptr::read(b_val));
+                b_node = (*b_ptr.as_ptr()).next;
+            }
         }
-	}
+
+        merged_list
+    }
 }
 
 impl<T> Display for LinkedList<T>
